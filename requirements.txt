@@ -1,0 +1,5 @@
+selenium
+pandas
+supabase
+chromedriver-binary-auto
+
