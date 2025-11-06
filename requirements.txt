@@ -1,6 +1,8 @@
+setuptools
 selenium
-pandas
-supabase
+undetected-chromedriver
 chromedriver-binary-auto
-chromedriver-autoinstaller
-
+supabase
+pandas
+requests
+python-dotenv

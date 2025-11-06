@@ -6,12 +6,17 @@ from selenium.webdriver.chrome.options import Options
 from supabase import create_client, Client
 from datetime import datetime
 import os
+from dotenv import load_dotenv
 
-import chromedriver_autoinstaller
-chromedriver_autoinstaller.install()
+# import chromedriver_autoinstaller
+# chromedriver_autoinstaller.install()
+
+import undetected_chromedriver as uc
+# from selenium.webdriver.chrome.options import Options
 
 
 # ---------- CONFIG ----------
+load_dotenv()
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 BUCKET_NAME = "dining-data"  # create this in Supabase Storage
@@ -38,6 +43,30 @@ dining_halls = [
     Restaurant("https://dining.columbia.edu/johnnys", "johnnys"),
 ]
 
+
+def get_json(url):
+    options = Options()
+    options.add_argument("--headless=new")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--window-size=1920,1080")
+
+    driver = uc.Chrome(options=options)
+    driver.get(url)
+
+    scripts = driver.find_elements("tag name", "script")
+    script_text = ""
+    for s in scripts:
+        txt = s.get_attribute("innerHTML")
+        if "var dining_nodes" in txt:
+            script_text = txt
+            break
+
+    driver.quit()
+    return script_text
+
+
 # ---------- SELENIUM SETUP ----------
 # def get_json(url):
 #     chrome_options = Options()
@@ -57,25 +86,26 @@ dining_halls = [
 
 #     driver.quit()
 #     return script_text
-def get_json(url):
-    chrome_options = Options()
-    chrome_options.add_argument("--headless=new")  # use new headless mode
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--window-size=1920,1080")
 
-    driver = webdriver.Chrome(options=chrome_options)
-    driver.get(url)
-    scripts = driver.find_elements("tag name", "script")
-    script_text = ""
-    for s in scripts:
-        txt = s.get_attribute("innerHTML")
-        if "var dining_nodes" in txt:
-            script_text = txt
-            break
-    driver.quit()
-    return script_text
+# def get_json(url):
+#     chrome_options = Options()
+#     chrome_options.add_argument("--headless=new")  # use new headless mode
+#     chrome_options.add_argument("--no-sandbox")
+#     chrome_options.add_argument("--disable-gpu")
+#     chrome_options.add_argument("--disable-dev-shm-usage")
+#     chrome_options.add_argument("--window-size=1920,1080")
+
+#     driver = webdriver.Chrome(options=chrome_options)
+#     driver.get(url)
+#     scripts = driver.find_elements("tag name", "script")
+#     script_text = ""
+#     for s in scripts:
+#         txt = s.get_attribute("innerHTML")
+#         if "var dining_nodes" in txt:
+#             script_text = txt
+#             break
+#     driver.quit()
+#     return script_text
 
 
 # ---------- PARSING HELPERS ----------
