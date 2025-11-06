@@ -7,6 +7,10 @@ from supabase import create_client, Client
 from datetime import datetime
 import os
 
+import chromedriver_autoinstaller
+chromedriver_autoinstaller.install()
+
+
 # ---------- CONFIG ----------
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
@@ -35,13 +39,33 @@ dining_halls = [
 ]
 
 # ---------- SELENIUM SETUP ----------
+# def get_json(url):
+#     chrome_options = Options()
+#     chrome_options.add_argument("--headless")
+#     chrome_options.add_argument("--no-sandbox")
+#     chrome_options.add_argument("--disable-dev-shm-usage")
+#     driver = webdriver.Chrome(options=chrome_options)
+
+#     driver.get(url)
+#     scripts = driver.find_elements("tag name", "script")
+#     script_text = ""
+#     for s in scripts:
+#         txt = s.get_attribute("innerHTML")
+#         if "var dining_nodes" in txt:
+#             script_text = txt
+#             break
+
+#     driver.quit()
+#     return script_text
 def get_json(url):
     chrome_options = Options()
-    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--headless=new")  # use new headless mode
     chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--disable-dev-shm-usage")
-    driver = webdriver.Chrome(options=chrome_options)
+    chrome_options.add_argument("--window-size=1920,1080")
 
+    driver = webdriver.Chrome(options=chrome_options)
     driver.get(url)
     scripts = driver.find_elements("tag name", "script")
     script_text = ""
@@ -50,9 +74,9 @@ def get_json(url):
         if "var dining_nodes" in txt:
             script_text = txt
             break
-
     driver.quit()
     return script_text
+
 
 # ---------- PARSING HELPERS ----------
 def extract_js_json(var_name, text):
@@ -200,13 +224,28 @@ def run_scraper():
     }
 
     json_bytes = json.dumps(payload, indent=2).encode("utf-8")
+
+    # First, delete existing file if it exists (safe to ignore errors)
+    try:
+        supabase.storage.from_(BUCKET_NAME).remove([UPLOAD_FILENAME])
+    except Exception as e:
+        print("⚠️ Could not remove old file (probably doesn’t exist yet):", e)
+
+    # Then upload the new JSON
     supabase.storage.from_(BUCKET_NAME).upload(
         path=UPLOAD_FILENAME,
         file=json_bytes,
         file_options={"content-type": "application/json"},
-        upsert=True
     )
     print(f"✅ Uploaded to Supabase: {BUCKET_NAME}/{UPLOAD_FILENAME}")
+
+    # supabase.storage.from_(BUCKET_NAME).upload(
+    #     path=UPLOAD_FILENAME,
+    #     file=json_bytes,
+    #     file_options={"content-type": "application/json"},
+    #     upsert=True
+    # )
+    # print(f"✅ Uploaded to Supabase: {BUCKET_NAME}/{UPLOAD_FILENAME}")
 
 if __name__ == "__main__":
     run_scraper()
