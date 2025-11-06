@@ -8,11 +8,12 @@ from datetime import datetime
 import os
 from dotenv import load_dotenv
 
-# import chromedriver_autoinstaller
-# chromedriver_autoinstaller.install()
 
-import undetected_chromedriver as uc
-# from selenium.webdriver.chrome.options import Options
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+
 
 
 # ---------- CONFIG ----------
@@ -44,17 +45,21 @@ dining_halls = [
 ]
 
 
+
 def get_json(url):
-    options = Options()
-    options.add_argument("--headless=new")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--window-size=1920,1080")
+    chrome_options = Options()
+    chrome_options.binary_location = "/usr/bin/chromium" #remove when running locally
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--window-size=1920,1080")
 
-    driver = uc.Chrome(options=options)
+    # auto-manage chromedriver locally & in container
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+
     driver.get(url)
-
     scripts = driver.find_elements("tag name", "script")
     script_text = ""
     for s in scripts:
@@ -66,46 +71,6 @@ def get_json(url):
     driver.quit()
     return script_text
 
-
-# ---------- SELENIUM SETUP ----------
-# def get_json(url):
-#     chrome_options = Options()
-#     chrome_options.add_argument("--headless")
-#     chrome_options.add_argument("--no-sandbox")
-#     chrome_options.add_argument("--disable-dev-shm-usage")
-#     driver = webdriver.Chrome(options=chrome_options)
-
-#     driver.get(url)
-#     scripts = driver.find_elements("tag name", "script")
-#     script_text = ""
-#     for s in scripts:
-#         txt = s.get_attribute("innerHTML")
-#         if "var dining_nodes" in txt:
-#             script_text = txt
-#             break
-
-#     driver.quit()
-#     return script_text
-
-# def get_json(url):
-#     chrome_options = Options()
-#     chrome_options.add_argument("--headless=new")  # use new headless mode
-#     chrome_options.add_argument("--no-sandbox")
-#     chrome_options.add_argument("--disable-gpu")
-#     chrome_options.add_argument("--disable-dev-shm-usage")
-#     chrome_options.add_argument("--window-size=1920,1080")
-
-#     driver = webdriver.Chrome(options=chrome_options)
-#     driver.get(url)
-#     scripts = driver.find_elements("tag name", "script")
-#     script_text = ""
-#     for s in scripts:
-#         txt = s.get_attribute("innerHTML")
-#         if "var dining_nodes" in txt:
-#             script_text = txt
-#             break
-#     driver.quit()
-#     return script_text
 
 
 # ---------- PARSING HELPERS ----------

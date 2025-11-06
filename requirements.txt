@@ -1,7 +1,5 @@
-setuptools
-selenium
-undetected-chromedriver
-chromedriver-binary-auto
+selenium>=4.15.0
+webdriver-manager>=4.0.2
 supabase
 pandas
 requests
