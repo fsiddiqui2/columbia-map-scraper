@@ -49,9 +49,16 @@ dining_halls = [
 def get_json(url):
     chrome_options = Options()
 
-    # This is the most important fix:
-    # Tell Selenium where the browser is located (from your apt-get install)
-    chrome_options.binary_location = "/usr/bin/chromium"
+    chrome_path = shutil.which("chromium") or shutil.which("chromium-browser")
+
+    if not chrome_path:
+        print("ERROR: Chromium binary not found. Make sure 'chromium' or 'chromium-browser' is installed.")
+        # Or raise an exception:
+        # raise FileNotFoundError("Chromium binary not found.")
+        return "" # Exit the function if no browser is found
+
+    print(f"✅ Found chromium binary at: {chrome_path}")
+    chrome_options.binary_location = chrome_path
 
     # All these arguments are correct for a server environment
     chrome_options.add_argument("--headless")
