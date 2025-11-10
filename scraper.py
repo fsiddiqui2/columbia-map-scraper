@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
 import shutil
 
 
@@ -60,10 +61,7 @@ def get_json(url):
     chrome_options.add_argument("--disable-extensions")
     chrome_options.add_argument("--window-size=1920,1080")
 
-    # This is the second fix:
-    # Point the Service to the driver you installed with apt-get
-    # (Stop using ChromeDriverManager)
-    service = Service(executable_path="/usr/bin/chromedriver")
+    service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=chrome_options)
 
     driver.get(url)
