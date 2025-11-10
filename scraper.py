@@ -4,7 +4,7 @@ import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from supabase import create_client, Client
-from datetime import datetime
+from datetime import datetime, timezone
 import os
 from dotenv import load_dotenv
 
@@ -12,8 +12,7 @@ from dotenv import load_dotenv
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
-import shutil
+
 
 
 # ---------- CONFIG ----------
@@ -49,16 +48,7 @@ dining_halls = [
 def get_json(url):
     chrome_options = Options()
 
-    chrome_path = shutil.which("chromium") or shutil.which("chromium-browser")
-
-    if not chrome_path:
-        print("ERROR: Chromium binary not found. Make sure 'chromium' or 'chromium-browser' is installed.")
-        # Or raise an exception:
-        # raise FileNotFoundError("Chromium binary not found.")
-        return "" # Exit the function if no browser is found
-
-    print(f"✅ Found chromium binary at: {chrome_path}")
-    chrome_options.binary_location = chrome_path
+    chrome_options.binary_location = "/usr/bin/chromium"
 
     # All these arguments are correct for a server environment
     chrome_options.add_argument("--headless")
@@ -68,7 +58,7 @@ def get_json(url):
     chrome_options.add_argument("--disable-extensions")
     chrome_options.add_argument("--window-size=1920,1080")
 
-    service = Service(ChromeDriverManager().install())
+    service = Service(executable_path="/usr/bin/chromedriver")
     driver = webdriver.Chrome(service=service, options=chrome_options)
 
     driver.get(url)

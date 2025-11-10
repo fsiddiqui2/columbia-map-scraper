@@ -1,12 +1,11 @@
 services:
   - type: cron
     name: dining-scraper
-    env: python
+    # Use the Docker environment
+    env: docker
+    dockerfilePath: ./Dockerfile
     schedule: "0 * * * *"   # every hour
-    buildCommand: |
-      apt-get update
-      apt-get install -y chromium chromium-browser
-      pip install -r requirements.txt
+    # No buildCommand is needed; the Dockerfile handles it
     startCommand: "python scraper.py"
     envVars:
       - key: SUPABASE_URL
