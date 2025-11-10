@@ -12,7 +12,6 @@ from dotenv import load_dotenv
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
 import shutil
 
 
@@ -49,15 +48,11 @@ dining_halls = [
 def get_json(url):
     chrome_options = Options()
 
-    # chrome_options.binary_location = "/usr/bin/chromium" #remove when running locally
-    # chrome_path = (
-    #     shutil.which("chromium")
-    #     or shutil.which("chromium-browser")
-    #     or shutil.which("google-chrome")
-    # )
-    # if chrome_path:
-    #     chrome_options.binary_location = chrome_path
+    # This is the most important fix:
+    # Tell Selenium where the browser is located (from your apt-get install)
+    chrome_options.binary_location = "/usr/bin/chromium"
 
+    # All these arguments are correct for a server environment
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
@@ -65,8 +60,11 @@ def get_json(url):
     chrome_options.add_argument("--disable-extensions")
     chrome_options.add_argument("--window-size=1920,1080")
 
-    # auto-manage chromedriver locally & in container
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+    # This is the second fix:
+    # Point the Service to the driver you installed with apt-get
+    # (Stop using ChromeDriverManager)
+    service = Service(executable_path="/usr/bin/chromedriver")
+    driver = webdriver.Chrome(service=service, options=chrome_options)
 
     driver.get(url)
     scripts = driver.find_elements("tag name", "script")
