@@ -47,7 +47,11 @@ dining_halls = [
 # --- Step 1: Load the page
 def get_json(url):
     try:
-        r = requests.get(url, timeout=20)
+        # Add a User-Agent header to mimic a real browser
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
+        }
+        r = requests.get(url, headers=headers, timeout=20)
         r.raise_for_status()
         soup = BeautifulSoup(r.text, "html.parser")
 
