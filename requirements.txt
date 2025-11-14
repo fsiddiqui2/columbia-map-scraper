@@ -1,6 +1,4 @@
-selenium>=4.15.0
-webdriver-manager>=4.0.2
-supabase
-pandas
-requests
 python-dotenv
+requests
+beautifulsoup4
+supabase
