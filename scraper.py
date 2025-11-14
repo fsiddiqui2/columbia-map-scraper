@@ -1,6 +1,7 @@
 import re
 import json
 import requests
+import cloudscraper  # <-- Import cloudscraper
 from bs4 import BeautifulSoup
 import re
 from datetime import datetime
@@ -9,7 +10,7 @@ import sys
 from supabase import create_client, Client
 
 from dotenv import load_dotenv
-load_dotenv()
+load_dotenv() 
 
 # --- Supabase Setup ---
 try:
@@ -47,11 +48,12 @@ dining_halls = [
 # --- Step 1: Load the page
 def get_json(url):
     try:
-        # Add a User-Agent header to mimic a real browser
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
-        }
-        r = requests.get(url, headers=headers, timeout=20)
+        # Create a scraper instance that can bypass Cloudflare
+        scraper = cloudscraper.create_scraper()
+
+        # Use the scraper's .get() method instead of requests.get()
+        # It handles the necessary headers and JS challenges automatically.
+        r = scraper.get(url, timeout=20)
         r.raise_for_status()
         soup = BeautifulSoup(r.text, "html.parser")
 
